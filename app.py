@@ -2,7 +2,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-st.title("FIFA-All-Star-Lineup")
+st.title("FIFA All Star Lineup")
 st.markdown("All-star Players with cost analysis ")
 
 # Load the data
