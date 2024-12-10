@@ -76,25 +76,31 @@ def Barchart():
         "LA Galaxy", "New York City FC"
     ]
     
-    # Retrieve the selected club from session state, or set the default value
-    selected_club = st.session_state.get("selected_club", allowed_club_teams[0])
-
-    # Selection box for club teams, limited to the allowed list
+    # Get the selected club team from session state (if it exists)
+    if "selected_club" not in st.session_state:
+        st.session_state.selected_club = allowed_club_teams[0]  # Default to the first club if no selection
     selected_club = st.selectbox(
         "Select a Club Team:",
         options=allowed_club_teams,
-        index=allowed_club_teams.index(selected_club)
+        index=allowed_club_teams.index(st.session_state.selected_club)
     )
-
-    # Store the selected club in session state to persist it
+    # Save the selected club team to session state
     st.session_state.selected_club = selected_club
-
+    
     # Filter the data for the selected club team
     filtered_data = fifa_cleaned_df[fifa_cleaned_df['club_team'] == selected_club]
 
-    # Dropdown for selecting the Y-axis variable
-    y_var = st.session_state.get("selected_y_var_barchart", "overall_rating")
-
+    # Dropdown for selecting the Y-axis variable, use session state to remember the selection
+    if "y_var" not in st.session_state:
+        st.session_state.y_var = "short_passing"  # Default selection if not set
+    y_var = st.selectbox(
+        "Choose a variable for the Y-axis:",
+        options=["short_passing", "dribbling", "sprint_speed", "strength", "overall_rating", "potential"],
+        index=["short_passing", "dribbling", "sprint_speed", "strength", "overall_rating", "potential"].index(st.session_state.y_var)
+    )
+    # Save the selected Y-axis variable to session state
+    st.session_state.y_var = y_var
+    
     # Create the Altair bar chart with player names on the X-axis and selected variable on the Y-axis
     chart = alt.Chart(filtered_data).mark_bar().encode(
         x=alt.X('name:N', title="Player Name"),  # Set player names as the X-axis
@@ -108,9 +114,6 @@ def Barchart():
 
     # Display the chart
     st.altair_chart(chart, use_container_width=True)
-
-    # Store the selected Y-axis variable in session state to persist it
-    st.session_state.selected_y_var_barchart = y_var
 
 def Formation():
     st.subheader("Formation View: All-Star Lineup")
