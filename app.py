@@ -157,6 +157,7 @@ def Formation():
         x="x:Q",
         y="y:Q",
         size=alt.value(500)
+    )
 
             # Add center circle
     center_circle_chart = alt.Chart(center_circle).mark_circle(color="black").encode(
