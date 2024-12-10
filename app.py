@@ -142,15 +142,13 @@ def Formation():
         "y": [0, 0, 100, 100, 0]
     })).mark_line(color="green", strokeWidth=5).encode(
         x="x:Q", y="y:Q"
-    ).properties(width=600, height=400).configure_axis(
-        labelColor='transparent',  # Remove axis labels and numbers
-        titleColor='transparent'
-    )
+    ).properties(width=600, height=400)
     
-    # Add player positions as points (without tooltips)
+    # Add player positions as points (without x and y in the tooltip)
     players = alt.Chart(lineup).mark_circle(size=200, color="blue").encode(
         x="x:Q",
-        y="y:Q"
+        y="y:Q",
+        tooltip=["name", "positions", "overall_rating", "club_team"]  # Removed x and y
     )
     
     # Add player names as text
