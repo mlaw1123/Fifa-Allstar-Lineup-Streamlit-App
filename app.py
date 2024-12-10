@@ -156,7 +156,7 @@ def Formation():
     center_circle_chart = alt.Chart(center_circle).mark_circle(color="black", opacity=0.0).encode(
         x="x:Q",
         y="y:Q",
-        size=alt.value(500)
+        size=alt.value(500))
 
 def Data():
     st.subheader("Data Page")
