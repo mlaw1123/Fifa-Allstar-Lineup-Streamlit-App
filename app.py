@@ -1,9 +1,11 @@
 import altair as alt
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
+from mplsoccer import Pitch
 
 st.title("FIFA All Star Lineup")
-st.markdown("All-star Players with cost analysis ")
+st.markdown("All-star Players with cost analysis")
 
 # Load the data
 fifa_cleaned_df = pd.read_csv('fifa_cleaned (version 2).csv')
@@ -27,6 +29,9 @@ if st.sidebar.button("Barchart".upper()):
 
 if st.sidebar.button("Data".upper()):
     switch_page("Data")
+
+if st.sidebar.button("Formation".upper()):
+    switch_page("Formation")
 
 def Comparison():
     st.subheader("Player Value Comparison")
@@ -52,9 +57,6 @@ def Comparison():
         .interactive()
     )
     st.altair_chart(alt_chart, use_container_width=True)
-
-# Assuming fifa_cleaned_df is already loaded
-# fifa_cleaned_df = pd.read_csv('fifa_cleaned (version 2).csv')
 
 def Barchart():
     st.subheader("Players by Club Analysis")
@@ -97,61 +99,55 @@ def Barchart():
     # Display the chart
     st.altair_chart(chart, use_container_width=True)
 
-# Adds the "Formation" page to the sidebar
 def Formation():
-    st.subheader("Formation View")
+    st.subheader("Formation View: Players on the Soccer Field")
 
-    # Filter data for players you want to show, e.g., Thomas Lemar and Roberto Firmino
-    players_of_interest = ['Thomas Lemar', 'Roberto Firmino Barbosa de Oliveira']
-    filtered_players = fifa_cleaned_df[fifa_cleaned_df['name'].isin(players_of_interest)]
-
-    # Create a basic soccer field layout using altair with only the field boundary (no lines in the chart)
-    field = alt.Chart(pd.DataFrame({
-        'x': [0, 0, 100, 100, 50],
-        'y': [0, 100, 0, 100, 50],
-        'field': ['left', 'right', 'bottom', 'top', 'center']
-    })).mark_rect(color='green', opacity=0.1).encode(
-        x='x:Q',
-        y='y:Q'
-    ).properties(
-        title="Soccer Field Layout"
-    )
-
-    # Create player positions (adjust coordinates as needed for actual positions)
-    positions = {
-        'Thomas Lemar': {'x': 20, 'y': 50},
-        'Roberto Firmino Barbosa de Oliveira': {'x': 80, 'y': 50},
+    # Players to be plotted on the pitch
+    players = {
+        'Thomas Lemar': {'x': 40, 'y': 50},  # Coordinates on the pitch
+        'Roberto Firmino Barbosa de Oliveira': {'x': 60, 'y': 50},
     }
 
-    # Create a scatter plot of players on the field as dots
-    players_chart = alt.Chart(filtered_players).mark_circle(size=100, color="blue").encode(
-        x=alt.X('x:Q', scale=alt.Scale(domain=[0, 100]), title="Field X"),
-        y=alt.Y('y:Q', scale=alt.Scale(domain=[0, 100]), title="Field Y"),
-        tooltip=['name:N', 'nationality:N', 'positions:N', 'overall_rating:Q', 'age:Q']
-    ).transform_calculate(
-        # Adjusting positions based on player names
-        x='datum.name == "Thomas Lemar" ? 20 : datum.name == "Roberto Firmino Barbosa de Oliveira" ? 80 : 50',
-        y='datum.name == "Thomas Lemar" ? 50 : datum.name == "Roberto Firmino Barbosa de Oliveira" ? 50 : 50'
-    ).properties(
-        title="Players in Formation"
-    )
+    # Player details for tooltips
+    player_details = {
+        'Thomas Lemar': {
+            'Full name': 'Thomas Lemar',
+            'Nationality': 'France',
+            'Positions': 'Midfielder',
+            'Overall Rating': 85,
+            'Age': 27,
+        },
+        'Roberto Firmino Barbosa de Oliveira': {
+            'Full name': 'Roberto Firmino Barbosa de Oliveira',
+            'Nationality': 'Brazil',
+            'Positions': 'Forward',
+            'Overall Rating': 87,
+            'Age': 32,
+        },
+    }
 
-    # Combine the soccer field (background) and players (dots)
-    combined_chart = field + players_chart
-    st.altair_chart(combined_chart, use_container_width=True)
+    # Create the pitch
+    pitch = Pitch(pitch_type='statsbomb', axis=True, label=True, pitch_color='green', line_color='white')
+    fig, ax = pitch.draw(figsize=(10, 7))
 
-# Add the Formation button to the sidebar
-formation_button = st.sidebar.button("Formation", on_click=lambda: switch_page("Formation"))
+    # Plot players as dots on the pitch
+    for player, coords in players.items():
+        pitch.scatter(coords['x'], coords['y'], s=600, color='blue', edgecolors='black', linewidth=1.5, ax=ax)
+        ax.text(
+            coords['x'], coords['y'] + 2, player, color='white', ha='center', va='center', fontsize=10, weight='bold'
+        )
 
-# Page switching logic
-if "current_page" not in st.session_state:
-    st.session_state.current_page = "Home"
+    # Print player tooltips in the console
+    for player, details in player_details.items():
+        st.write(f"Details for {player}:")
+        for key, value in details.items():
+            st.write(f"  {key}: {value}")
 
-def switch_page(page: str):
-    st.session_state.current_page = page
+    # Add a title to the pitch
+    ax.set_title("Formation View: Players on the Soccer Field", fontsize=16, color="white")
 
-if st.session_state.current_page == "Formation":
-    Formation()
+    # Display the pitch in Streamlit
+    st.pyplot(fig)
 
 def Data():
     st.subheader("Data Page")
@@ -162,6 +158,8 @@ if st.session_state.current_page == "Comparison":
     Comparison()
 elif st.session_state.current_page == "Barchart":
     Barchart()
+elif st.session_state.current_page == "Formation":
+    Formation()
 elif st.session_state.current_page == "Data":
     Data()
 else:
