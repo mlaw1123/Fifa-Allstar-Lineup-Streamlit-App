@@ -114,7 +114,6 @@ def Formation():
         "CDM": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CDM")].nlargest(1, "overall_rating"),
     }
     
-    # Combine selected players into a single DataFrame
     lineup = pd.concat(formation.values(), ignore_index=True)
     
     # Calculate the sum of value_euro for the selected players
@@ -135,68 +134,21 @@ def Formation():
         "LW": (15, 90),
         "ST": (50, 90),
         "RW": (85, 90),
-        "CDM": (50, 50),  # Position for CDM in the center
+        "CDM": (50, 50),
     }
     
     # Add pitch coordinates to the lineup dataframe
     lineup["x"] = [pitch_positions[pos][0] for pos in pitch_positions]
     lineup["y"] = [pitch_positions[pos][1] for pos in pitch_positions]
     
-    # Draw the soccer pitch (half-field)
+    # Draw the soccer pitch
     field = alt.Chart(pd.DataFrame({
-        "x": [0, 50, 50, 0, 0],  # Half-width (from 0 to 50)
+        "x": [0, 100, 100, 0, 0],
         "y": [0, 0, 100, 100, 0]
     })).mark_line(color="green", strokeWidth=5).encode(
         x="x:Q", y="y:Q"
     ).properties(width=600, height=400)
-
-    # Add center line
-    center_line = alt.Chart(pd.DataFrame({
-        "x": [50, 50],
-        "y": [0, 100]
-    })).mark_line(color="white", strokeWidth=2).encode(
-        x="x:Q", y="y:Q"
-    )
     
-    # Add penalty areas (rectangles)
-    penalty_box_left = alt.Chart(pd.DataFrame({
-        "x": [0, 0, 25, 25, 0],
-        "y": [25, 75, 75, 25, 25]
-    })).mark_line(color="white", strokeWidth=2).encode(
-        x="x:Q", y="y:Q"
-    )
-
-    penalty_box_right = alt.Chart(pd.DataFrame({
-        "x": [75, 75, 100, 100, 75],
-        "y": [25, 75, 75, 25, 25]
-    })).mark_line(color="white", strokeWidth=2).encode(
-        x="x:Q", y="y:Q"
-    )
-
-    # Add goal area (rectangles inside the penalty area)
-    goal_area_left = alt.Chart(pd.DataFrame({
-        "x": [0, 0, 10, 10, 0],
-        "y": [40, 60, 60, 40, 40]
-    })).mark_line(color="white", strokeWidth=2).encode(
-        x="x:Q", y="y:Q"
-    )
-
-    goal_area_right = alt.Chart(pd.DataFrame({
-        "x": [90, 90, 100, 100, 90],
-        "y": [40, 60, 60, 40, 40]
-    })).mark_line(color="white", strokeWidth=2).encode(
-        x="x:Q", y="y:Q"
-    )
-
-    # Add center circle
-    center_circle = alt.Chart(pd.DataFrame({
-        "x": [50],
-        "y": [50],
-        "r": [10]
-    })).mark_circle(color="white", opacity=0.2).encode(
-        x="x:Q", y="y:Q", size="r:Q"
-    )
-
     # Add player positions as points (without x and y in the tooltip)
     players = alt.Chart(lineup).mark_circle(size=200, color="blue").encode(
         x="x:Q",
@@ -212,8 +164,8 @@ def Formation():
         tooltip=["name", "positions", "overall_rating", "club_team", "value_euro"]
     )
     
-    # Combine the pitch, players, text, and field lines into one chart
-    formation_chart = field + center_line + penalty_box_left + penalty_box_right + goal_area_left + goal_area_right + center_circle + players + text
+    # Combine the pitch, players, and text into one chart
+    formation_chart = field + players + text
     st.altair_chart(formation_chart, use_container_width=True)
 
 def Data():
