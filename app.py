@@ -100,66 +100,52 @@ def Barchart():
 def Formation():
     st.subheader("Formation View: All-Star Lineup")
 
-    # Select 11 players for a 4-3-3 formation
+    # Create the formation
     formation = {
         "GK": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("GK")].nlargest(1, "overall_rating"),
         "LB": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("LB")].nlargest(1, "overall_rating"),
         "CB1": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CB")].nlargest(1, "overall_rating"),
-        "CB2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CB")].nlargest(2, "overall_rating").iloc[1:],
+        "CB2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CB")].nlargest(2, "overall_rating").iloc[[1]],
         "RB": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("RB")].nlargest(1, "overall_rating"),
         "CM1": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CM")].nlargest(1, "overall_rating"),
-        "CM2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CM")].nlargest(2, "overall_rating").iloc[1:],
+        "CM2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CM")].nlargest(2, "overall_rating").iloc[[1]],
         "LW": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("LW")].nlargest(1, "overall_rating"),
         "ST": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("ST")].nlargest(1, "overall_rating"),
         "RW": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("RW")].nlargest(1, "overall_rating"),
+        "CDM": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CDM")].nlargest(1, "overall_rating")
     }
-    
-    # Combine selected players into a single DataFrame
-    lineup = pd.concat(formation.values(), ignore_index=True)
-    
-    # Define positions on the soccer pitch
-    pitch_positions = {
-        "GK": (50, 10),
-        "LB": (15, 30),
-        "CB1": (35, 30),
-        "CB2": (65, 30),
-        "RB": (85, 30),
-        "CM1": (35, 60),
-        "CM2": (65, 60),
-        "LW": (15, 90),
-        "ST": (50, 90),
-        "RW": (85, 90),
+
+    # Combine all players into one DataFrame
+    lineup_df = pd.concat(formation.values())
+
+    # Display lineup in a table
+    st.subheader("All-Star Lineup")
+    st.dataframe(lineup_df[["name", "positions", "overall_rating", "value_euro"]])
+
+    # Visual representation of the lineup
+    st.subheader("Formation Layout")
+    field_positions = {
+        "GK": (5, 1),
+        "LB": (1, 2),
+        "CB1": (3, 2),
+        "CB2": (7, 2),
+        "RB": (9, 2),
+        "CDM": (5, 3),
+        "CM1": (3, 4),
+        "CM2": (7, 4),
+        "LW": (1, 5),
+        "ST": (5, 5),
+        "RW": (9, 5),
     }
-    
-    # Add pitch coordinates to the lineup dataframe
-    lineup["x"] = [pitch_positions[pos][0] for pos in pitch_positions]
-    lineup["y"] = [pitch_positions[pos][1] for pos in pitch_positions]
-    
-    # Draw the soccer pitch
-    field = alt.Chart(pd.DataFrame({
-        "x": [0, 100, 100, 0, 0],
-        "y": [0, 0, 100, 100, 0]
-    })).mark_line(color="green", strokeWidth=5).encode(
-        x="x:Q", y="y:Q"
-    ).properties(width=600, height=400)
-    
-    # Add player positions as points
-    players = alt.Chart(lineup).mark_circle(size=200, color="blue").encode(
-        x="x:Q",
-        y="y:Q",
-        tooltip=["name", "positions", "overall_rating", "club_team"]
-    )
-    
-    # Add player names as text
-    text = alt.Chart(lineup).mark_text(align="center", fontSize=12, color="white").encode(
-        x="x:Q",
-        y="y:Q",
-        text="name"
-    )
-    
-    # Combine the pitch, players, and text into one chart
-    formation_chart = field + players + text
-    st.altair_chart(formation_chart, use_container_width=True)
+
+    # Create the soccer field grid
+    field_grid = [["" for _ in range(10)] for _ in range(6)]
+    for position, (x, y) in field_positions.items():
+        player = lineup_df[lineup_df["positions"].str.contains(position)].iloc[0]
+        field_grid[y][x] = f"{position}\n{player['name']}"
+
+    # Render the grid as a table
+    st.table(field_grid)
 
 def Data():
     st.subheader("Data Page")
