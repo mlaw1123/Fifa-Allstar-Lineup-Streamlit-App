@@ -25,11 +25,11 @@ if st.sidebar.button("Comparison".upper()):
 if st.sidebar.button("Barchart".upper()):
     switch_page("Barchart")
 
-if st.sidebar.button("Data".upper()):
-    switch_page("Data")
-
 if st.sidebar.button("Formation".upper()):
     switch_page("Formation")
+
+if st.sidebar.button("Data".upper()):
+    switch_page("Data")
 
 def Comparison():
     st.subheader("Player Value Comparison")
