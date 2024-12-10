@@ -155,7 +155,7 @@ def Formation():
     text = alt.Chart(lineup).mark_text(align="center", fontSize=12, color="white").encode(
         x="x:Q",
         y="y:Q",
-        text="name"
+        text="name",
         tooltip=["name", "positions", "overall_rating", "club_team"]
     )
     
