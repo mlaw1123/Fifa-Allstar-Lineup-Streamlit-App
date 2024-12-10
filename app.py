@@ -179,7 +179,7 @@ def Formation():
         x="x:Q",
         y="y:Q",
         text="name",
-        tooltip=["name", "positions", "overall_rating", "club_team",]
+        tooltip=["name", "positions", "overall_rating", "club_team", "value_euro"]
     )
     
     # Combine the pitch, players, and text into one chart
