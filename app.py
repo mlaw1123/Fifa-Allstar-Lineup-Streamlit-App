@@ -100,7 +100,7 @@ def Barchart():
 def Formation():
     st.subheader("Formation View: Players on the Soccer Field")
 
-    # Define the soccer field layout
+    # Define the soccer field layout (outer boundary, center line, penalty areas, and goals)
     field_lines = pd.DataFrame({
         "x": [
             0, 100, 100, 0, 0,  # Outer boundary
@@ -127,15 +127,15 @@ def Formation():
 
     # Add center circle as a separate layer
     center_circle = pd.DataFrame({
-        "x": [50],
-        "y": [50],
-        "radius": [8]
+        "x": [50],  # Center of the field
+        "y": [50],  # Center of the field
+        "radius": [8]  # Radius of the circle
     })
 
     # Define players' positions
     players = [
         {"name": "Thomas Lemar", "x": 40, "y": 70, "nationality": "France", "position": "Midfielder", "rating": 85, "age": 27},
-        {"name": "Roberto Firmino Barbosa de Oliveira", "x": 50, "y": 30, "nationality": "Brazil", "position": "Forward", "rating": 87, "age": 32},
+        {"name": "Roberto Firmino", "x": 50, "y": 30, "nationality": "Brazil", "position": "Forward", "rating": 87, "age": 32},
         {"name": "Virgil van Dijk", "x": 30, "y": 50, "nationality": "Netherlands", "position": "Defender", "rating": 89, "age": 32},
         {"name": "Alisson Becker", "x": 10, "y": 50, "nationality": "Brazil", "position": "Goalkeeper", "rating": 90, "age": 31}
     ]
@@ -144,33 +144,26 @@ def Formation():
 
     # Draw field lines
     field_chart = alt.Chart(field_lines).mark_line(color="black").encode(
-        x="x:Q",
-        y="y:Q",
-        detail="group:N"
+        x=alt.X("x:Q", scale=alt.Scale(domain=[0, 100]), title=None),
+        y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title=None),
+        detail="group:N"  # Group lines together
     ).properties(
         width=600,
         height=400
     )
 
     # Add center circle
-    center_circle_chart = alt.Chart(center_circle).mark_circle(color="black", opacity=0.0).encode(
-        x="x:Q",
-        y="y:Q",
-        size=alt.value(500)
-    )
-
-            # Add center circle
     center_circle_chart = alt.Chart(center_circle).mark_circle(color="black").encode(
         x="x:Q",
         y="y:Q",
-        size=alt.value(500),  # Adjust size to represent the circle
-        tooltip=[]  # No tooltip for the center circle
+        size=alt.value(500),  # Adjust size to match the circle's radius
+        tooltip=[]
     )
 
     # Add players to the field
     players_chart = alt.Chart(players_df).mark_circle(size=200, color="blue").encode(
-        x=alt.X("x:Q", scale=alt.Scale(domain=[0, 100]), title=None),
-        y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title=None),
+        x="x:Q",
+        y="y:Q",
         tooltip=["name:N", "nationality:N", "position:N", "rating:Q", "age:Q"]
     )
 
