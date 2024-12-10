@@ -117,6 +117,12 @@ def Formation():
     # Combine selected players into a single DataFrame
     lineup = pd.concat(formation.values(), ignore_index=True)
     
+    # Calculate the sum of value_euro for the selected players
+    total_value = lineup["value_euro"].sum()
+
+    # Display the total value below the formation chart
+    st.write(f"Total Value: €{total_value:,.2f}")
+    
     # Define positions on the soccer pitch
     pitch_positions = {
         "GK": (50, 10),
