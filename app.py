@@ -100,6 +100,40 @@ def Barchart():
 def Formation():
     st.subheader("Formation View: Players on the Soccer Field")
 
+    # Example data: lineup of players and their positions
+    players = {
+        'Goalkeeper': {'name': 'Alisson Becker', 'x': 5, 'y': 50},
+        'Left Back': {'name': 'Andrew Robertson', 'x': 20, 'y': 30},
+        'Center Back 1': {'name': 'Virgil van Dijk', 'x': 20, 'y': 50},
+        'Center Back 2': {'name': 'Joe Gomez', 'x': 20, 'y': 70},
+        'Right Back': {'name': 'Trent Alexander-Arnold', 'x': 20, 'y': 90},
+        'Defensive Midfielder': {'name': 'Fabinho', 'x': 40, 'y': 50},
+        'Central Midfielder 1': {'name': 'Jordan Henderson', 'x': 60, 'y': 30},
+        'Central Midfielder 2': {'name': 'Thiago Alcântara', 'x': 60, 'y': 70},
+        'Left Wing': {'name': 'Sadio Mané', 'x': 80, 'y': 30},
+        'Right Wing': {'name': 'Mohamed Salah', 'x': 80, 'y': 70},
+        'Striker': {'name': 'Roberto Firmino', 'x': 90, 'y': 50},
+    }
+
+    # Importing mplsoccer to draw the soccer pitch
+    from mplsoccer import Pitch
+
+    # Create the pitch
+    pitch = Pitch(pitch_type='statsbomb', pitch_color='grass', line_color='white')
+    fig, ax = pitch.draw(figsize=(10, 7))
+
+    # Plot each player on the pitch
+    for position, player in players.items():
+        x, y = player['x'], player['y']
+        pitch.scatter(x, y, s=600, color='blue', edgecolors='black', linewidth=1.5, ax=ax)
+        ax.text(x, y + 2, player['name'], color='white', ha='center', va='center', fontsize=10, weight='bold')
+
+    # Add a title to the pitch
+    ax.set_title("4-3-3 Formation View: FIFA All Star Lineup", fontsize=16, color="white")
+
+    # Display the pitch in Streamlit
+    st.pyplot(fig)
+
 def Data():
     st.subheader("Data Page")
     st.dataframe(fifa_cleaned_df)
