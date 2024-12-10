@@ -102,53 +102,6 @@ def Barchart():
 def Formation():
     st.subheader("Formation View: Players on the Soccer Field")
 
-    # Players to be plotted on the pitch
-    players = {
-        'Thomas Lemar': {'x': 40, 'y': 50},  # Coordinates on the pitch
-        'Roberto Firmino Barbosa de Oliveira': {'x': 60, 'y': 50},
-    }
-
-    # Player details for tooltips
-    player_details = {
-        'Thomas Lemar': {
-            'Full name': 'Thomas Lemar',
-            'Nationality': 'France',
-            'Positions': 'Midfielder',
-            'Overall Rating': 85,
-            'Age': 27,
-        },
-        'Roberto Firmino Barbosa de Oliveira': {
-            'Full name': 'Roberto Firmino Barbosa de Oliveira',
-            'Nationality': 'Brazil',
-            'Positions': 'Forward',
-            'Overall Rating': 87,
-            'Age': 32,
-        },
-    }
-
-    # Create the pitch
-    pitch = Pitch(pitch_type='statsbomb', axis=True, label=True, pitch_color='green', line_color='white')
-    fig, ax = pitch.draw(figsize=(10, 7))
-
-    # Plot players as dots on the pitch
-    for player, coords in players.items():
-        pitch.scatter(coords['x'], coords['y'], s=600, color='blue', edgecolors='black', linewidth=1.5, ax=ax)
-        ax.text(
-            coords['x'], coords['y'] + 2, player, color='white', ha='center', va='center', fontsize=10, weight='bold'
-        )
-
-    # Print player tooltips in the console
-    for player, details in player_details.items():
-        st.write(f"Details for {player}:")
-        for key, value in details.items():
-            st.write(f"  {key}: {value}")
-
-    # Add a title to the pitch
-    ax.set_title("Formation View: Players on the Soccer Field", fontsize=16, color="white")
-
-    # Display the pitch in Streamlit
-    st.pyplot(fig)
-
 def Data():
     st.subheader("Data Page")
     st.dataframe(fifa_cleaned_df)
