@@ -98,81 +98,67 @@ def Barchart():
     st.altair_chart(chart, use_container_width=True)
 
 def Formation():
-    st.subheader("Formation View: Players on the Soccer Field")
+    st.subheader("Formation View: All-Star Lineup")
 
-    # Define the soccer field layout (outer boundary, center line, penalty areas, and goals)
-    field_lines = pd.DataFrame({
-        "x": [
-            0, 100, 100, 0, 0,  # Outer boundary
-            50, 50,             # Center line
-            17, 17, 83, 83, 17,  # Penalty area
-            0, 6, 6, 0, 0,      # Left goal area
-            100, 94, 94, 100, 100  # Right goal area
-        ],
-        "y": [
-            0, 0, 100, 100, 0,  # Outer boundary
-            0, 100,             # Center line
-            21, 79, 79, 21, 21,  # Penalty area
-            42, 42, 58, 58, 42,  # Left goal area
-            42, 42, 58, 58, 42   # Right goal area
-        ],
-        "group": [
-            1, 1, 1, 1, 1,  # Outer boundary
-            2, 2,           # Center line
-            3, 3, 3, 3, 3,  # Penalty area
-            4, 4, 4, 4, 4,  # Left goal area
-            5, 5, 5, 5, 5   # Right goal area
-        ]
-    })
-
-    # Add center circle as a separate layer
-    center_circle = pd.DataFrame({
-        "x": [50],  # Center of the field
-        "y": [50],  # Center of the field
-        "radius": [8]  # Radius of the circle
-    })
-
-    # Define players' positions
-    players = [
-        {"name": "Thomas Lemar", "x": 40, "y": 70, "nationality": "France", "position": "Midfielder", "rating": 85, "age": 27},
-        {"name": "Roberto Firmino", "x": 50, "y": 30, "nationality": "Brazil", "position": "Forward", "rating": 87, "age": 32},
-        {"name": "Virgil van Dijk", "x": 30, "y": 50, "nationality": "Netherlands", "position": "Defender", "rating": 89, "age": 32},
-        {"name": "Alisson Becker", "x": 10, "y": 50, "nationality": "Brazil", "position": "Goalkeeper", "rating": 90, "age": 31}
-    ]
-
-    players_df = pd.DataFrame(players)
-
-    # Draw field lines
-    field_chart = alt.Chart(field_lines).mark_line(color="black").encode(
-        x=alt.X("x:Q", scale=alt.Scale(domain=[0, 100]), title=None),
-        y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title=None),
-        detail="group:N"  # Group lines together
-    ).properties(
-        width=600,
-        height=400
-    )
-
-    # Add center circle
-    center_circle_chart = alt.Chart(center_circle).mark_circle(color="black").encode(
+    # Select 11 players for a 4-3-3 formation
+    formation = {
+        "GK": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("GK")].nlargest(1, "overall_rating"),
+        "LB": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("LB")].nlargest(1, "overall_rating"),
+        "CB1": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CB")].nlargest(1, "overall_rating"),
+        "CB2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CB")].nlargest(2, "overall_rating").iloc[1:],
+        "RB": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("RB")].nlargest(1, "overall_rating"),
+        "CM1": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CM")].nlargest(1, "overall_rating"),
+        "CM2": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("CM")].nlargest(2, "overall_rating").iloc[1:],
+        "LW": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("LW")].nlargest(1, "overall_rating"),
+        "ST": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("ST")].nlargest(1, "overall_rating"),
+        "RW": fifa_cleaned_df[fifa_cleaned_df["positions"].str.contains("RW")].nlargest(1, "overall_rating"),
+    }
+    
+    # Combine selected players into a single DataFrame
+    lineup = pd.concat(formation.values(), ignore_index=True)
+    
+    # Define positions on the soccer pitch
+    pitch_positions = {
+        "GK": (50, 10),
+        "LB": (15, 30),
+        "CB1": (35, 30),
+        "CB2": (65, 30),
+        "RB": (85, 30),
+        "CM1": (35, 60),
+        "CM2": (65, 60),
+        "LW": (15, 90),
+        "ST": (50, 90),
+        "RW": (85, 90),
+    }
+    
+    # Add pitch coordinates to the lineup dataframe
+    lineup["x"] = [pitch_positions[pos][0] for pos in pitch_positions]
+    lineup["y"] = [pitch_positions[pos][1] for pos in pitch_positions]
+    
+    # Draw the soccer pitch
+    field = alt.Chart(pd.DataFrame({
+        "x": [0, 100, 100, 0, 0],
+        "y": [0, 0, 100, 100, 0]
+    })).mark_line(color="green", strokeWidth=5).encode(
+        x="x:Q", y="y:Q"
+    ).properties(width=600, height=400)
+    
+    # Add player positions as points
+    players = alt.Chart(lineup).mark_circle(size=200, color="blue").encode(
         x="x:Q",
         y="y:Q",
-        size=alt.value(500),  # Adjust size to match the circle's radius
-        tooltip=[]
+        tooltip=["name", "positions", "overall_rating", "club_team"]
     )
-
-    # Add players to the field
-    players_chart = alt.Chart(players_df).mark_circle(size=200, color="blue").encode(
+    
+    # Add player names as text
+    text = alt.Chart(lineup).mark_text(align="center", fontSize=12, color="white").encode(
         x="x:Q",
         y="y:Q",
-        tooltip=["name:N", "nationality:N", "position:N", "rating:Q", "age:Q"]
+        text="name"
     )
-
-    # Combine all charts
-    formation_chart = (field_chart + center_circle_chart + players_chart).properties(
-        title="Soccer Formation with Players"
-    )
-
-    # Render the chart in Streamlit
+    
+    # Combine the pitch, players, and text into one chart
+    formation_chart = field + players + text
     st.altair_chart(formation_chart, use_container_width=True)
 
 def Data():
