@@ -97,43 +97,66 @@ def Barchart():
     # Display the chart
     st.altair_chart(chart, use_container_width=True)
 
-# Define the Formation function
 def Formation():
     st.subheader("Formation View: Players on the Soccer Field")
-    
-    # Soccer field dimensions
-    field = pd.DataFrame({
-        "x": [0, 0, 100, 100],  # Field boundary (x-coordinates)
-        "y": [0, 100, 100, 0]   # Field boundary (y-coordinates)
+
+    # Define the soccer field layout
+    field_lines = pd.DataFrame({
+        "x": [
+            0, 100, 100, 0, 0,  # Outer boundary
+            50, 50,             # Center line
+            17, 17, 83, 83, 17,  # Penalty area
+            0, 6, 6, 0, 0,      # Left goal area
+            100, 94, 94, 100, 100  # Right goal area
+        ],
+        "y": [
+            0, 0, 100, 100, 0,  # Outer boundary
+            0, 100,             # Center line
+            21, 79, 79, 21, 21,  # Penalty area
+            42, 42, 58, 58, 42,  # Left goal area
+            42, 42, 58, 58, 42   # Right goal area
+        ],
+        "group": [
+            1, 1, 1, 1, 1,  # Outer boundary
+            2, 2,           # Center line
+            3, 3, 3, 3, 3,  # Penalty area
+            4, 4, 4, 4, 4,  # Left goal area
+            5, 5, 5, 5, 5   # Right goal area
+        ]
     })
-    
-    # Players to display on the field
+
+    # Add center circle as a separate layer
+    center_circle = pd.DataFrame({
+        "x": [50],
+        "y": [50],
+        "radius": [8]
+    })
+
+    # Define players' positions
     players = [
         {"name": "Thomas Lemar", "x": 40, "y": 70, "nationality": "France", "position": "Midfielder", "rating": 85, "age": 27},
         {"name": "Roberto Firmino Barbosa de Oliveira", "x": 50, "y": 30, "nationality": "Brazil", "position": "Forward", "rating": 87, "age": 32},
+        {"name": "Virgil van Dijk", "x": 30, "y": 50, "nationality": "Netherlands", "position": "Defender", "rating": 89, "age": 32},
+        {"name": "Alisson Becker", "x": 10, "y": 50, "nationality": "Brazil", "position": "Goalkeeper", "rating": 90, "age": 31}
     ]
 
     players_df = pd.DataFrame(players)
-    
-    # Soccer field chart
-    field_chart = alt.Chart(field).mark_line(color="green", strokeWidth=2).encode(
+
+    # Draw field lines
+    field_chart = alt.Chart(field_lines).mark_line(color="black").encode(
         x="x:Q",
-        y="y:Q"
+        y="y:Q",
+        detail="group:N"
     ).properties(
-        width=600, height=400, title="Soccer Formation"
+        width=600,
+        height=400
     )
-    
-    # Players chart
-    players_chart = alt.Chart(players_df).mark_circle(size=200, color="blue").encode(
-        x=alt.X("x:Q", scale=alt.Scale(domain=[0, 100]), title=None),
-        y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title=None),
-        tooltip=["name:N", "nationality:N", "position:N", "rating:Q", "age:Q"]
-    )
-    
-    # Combine soccer field and players
-    formation_chart = field_chart + players_chart
-    
-    st.altair_chart(formation_chart, use_container_width=True)
+
+    # Add center circle
+    center_circle_chart = alt.Chart(center_circle).mark_circle(color="black", opacity=0.0).encode(
+        x="x:Q",
+        y="y:Q",
+        size=alt.value(500)
 
 def Data():
     st.subheader("Data Page")
