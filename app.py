@@ -38,9 +38,17 @@ def Comparison():
     x_choices = ["overall_rating", "height_cm", "weight_kgs", "age"]
     y_choices = ["value_euro", "wage_euro", "potential", "dribbling"]
     
-    # Default selections for x and y axes
-    selected_x_var = st.selectbox("Select X-axis variable:", x_choices, index=0)  # Default: overall_rating
-    selected_y_var = st.selectbox("Select Y-axis variable:", y_choices, index=0)  # Default: value_euro
+    # Retrieve previous selections from session state, or set default values
+    selected_x_var = st.session_state.get("selected_x_var", x_choices[0])
+    selected_y_var = st.session_state.get("selected_y_var", y_choices[0])
+
+    # Allow users to select X and Y axis variables
+    selected_x_var = st.selectbox("Select X-axis variable:", x_choices, index=x_choices.index(selected_x_var))
+    selected_y_var = st.selectbox("Select Y-axis variable:", y_choices, index=y_choices.index(selected_y_var))
+
+    # Store the selected values in session state to persist them
+    st.session_state.selected_x_var = selected_x_var
+    st.session_state.selected_y_var = selected_y_var
 
     # Plot scatter plot using Altair
     alt_chart = (
@@ -68,21 +76,25 @@ def Barchart():
         "LA Galaxy", "New York City FC"
     ]
     
+    # Retrieve the selected club from session state, or set the default value
+    selected_club = st.session_state.get("selected_club", allowed_club_teams[0])
+
     # Selection box for club teams, limited to the allowed list
     selected_club = st.selectbox(
         "Select a Club Team:",
-        options=allowed_club_teams
+        options=allowed_club_teams,
+        index=allowed_club_teams.index(selected_club)
     )
-    
+
+    # Store the selected club in session state to persist it
+    st.session_state.selected_club = selected_club
+
     # Filter the data for the selected club team
     filtered_data = fifa_cleaned_df[fifa_cleaned_df['club_team'] == selected_club]
 
-    # Dropdowns for selecting the Y-axis variable
-    y_var = st.selectbox(
-        "Choose a variable for the Y-axis:",
-        options=["short_passing", "dribbling", "sprint_speed", "strength", "overall_rating", "potential"]
-    )
-    
+    # Dropdown for selecting the Y-axis variable
+    y_var = st.session_state.get("selected_y_var_barchart", "overall_rating")
+
     # Create the Altair bar chart with player names on the X-axis and selected variable on the Y-axis
     chart = alt.Chart(filtered_data).mark_bar().encode(
         x=alt.X('name:N', title="Player Name"),  # Set player names as the X-axis
@@ -96,6 +108,9 @@ def Barchart():
 
     # Display the chart
     st.altair_chart(chart, use_container_width=True)
+
+    # Store the selected Y-axis variable in session state to persist it
+    st.session_state.selected_y_var_barchart = y_var
 
 def Formation():
     st.subheader("Formation View: All-Star Lineup")
@@ -161,25 +176,4 @@ def Formation():
         x="x:Q",
         y="y:Q",
         text="name",
-        tooltip=["name", "positions", "overall_rating", "club_team", "value_euro"]
-    )
-    
-    # Combine the pitch, players, and text into one chart
-    formation_chart = field + players + text
-    st.altair_chart(formation_chart, use_container_width=True)
-
-def Data():
-    st.subheader("Data Page")
-    st.dataframe(fifa_cleaned_df)
-
-# Display the appropriate page based on the current state
-if st.session_state.current_page == "Comparison":
-    Comparison()
-elif st.session_state.current_page == "Barchart":
-    Barchart()
-elif st.session_state.current_page == "Formation":
-    Formation()
-elif st.session_state.current_page == "Data":
-    Data()
-else:
-    st.write("Welcome! Use the navigation bar to select a page.")
+        tooltip=["name", "positions", "overall_rating", "club_team",
