@@ -156,7 +156,30 @@ def Formation():
     center_circle_chart = alt.Chart(center_circle).mark_circle(color="black", opacity=0.0).encode(
         x="x:Q",
         y="y:Q",
-        size=alt.value(500))
+        size=alt.value(500)
+
+            # Add center circle
+    center_circle_chart = alt.Chart(center_circle).mark_circle(color="black").encode(
+        x="x:Q",
+        y="y:Q",
+        size=alt.value(500),  # Adjust size to represent the circle
+        tooltip=[]  # No tooltip for the center circle
+    )
+
+    # Add players to the field
+    players_chart = alt.Chart(players_df).mark_circle(size=200, color="blue").encode(
+        x=alt.X("x:Q", scale=alt.Scale(domain=[0, 100]), title=None),
+        y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title=None),
+        tooltip=["name:N", "nationality:N", "position:N", "rating:Q", "age:Q"]
+    )
+
+    # Combine all charts
+    formation_chart = (field_chart + center_circle_chart + players_chart).properties(
+        title="Soccer Formation with Players"
+    )
+
+    # Render the chart in Streamlit
+    st.altair_chart(formation_chart, use_container_width=True)
 
 def Data():
     st.subheader("Data Page")
