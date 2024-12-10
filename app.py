@@ -176,4 +176,25 @@ def Formation():
         x="x:Q",
         y="y:Q",
         text="name",
-        tooltip=["name", "positions", "overall_rating", "club_team",
+        tooltip=["name", "positions", "overall_rating", "club_team",]
+    )
+    
+    # Combine the pitch, players, and text into one chart
+    formation_chart = field + players + text
+    st.altair_chart(formation_chart, use_container_width=True)
+
+def Data():
+    st.subheader("Data Page")
+    st.dataframe(fifa_cleaned_df)
+
+# Display the appropriate page based on the current state
+if st.session_state.current_page == "Comparison":
+    Comparison()
+elif st.session_state.current_page == "Barchart":
+    Barchart()
+elif st.session_state.current_page == "Formation":
+    Formation()
+elif st.session_state.current_page == "Data":
+    Data()
+else:
+    st.write("Welcome! Use the navigation bar to select a page.")
