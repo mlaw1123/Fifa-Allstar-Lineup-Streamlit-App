@@ -98,7 +98,7 @@ def Barchart():
     st.altair_chart(chart, use_container_width=True)
 
 def Formation():
-    st.subheader("Formation View: Players on the Soccer Field")
+    st.subheader("Formation View: Players on the Soccer Field 123")
 
 def Data():
     st.subheader("Data Page")
